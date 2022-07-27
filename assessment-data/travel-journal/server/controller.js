@@ -25,7 +25,7 @@ module.exports = {
                 city_id SERIAL PRIMARY KEY,
                 name VARCHAR,
                 rating INTEGER,
-                country INTEGER REFERENCES countries (country_id)
+                country_id INTEGER REFERENCES countries (country_id)
             );
 
             insert into countries (name)
@@ -225,7 +225,7 @@ module.exports = {
             ('Zambia'),
             ('Zimbabwe');
 
-            INSERT INTO cities (name, country, rating)
+            INSERT INTO cities (name, country_id, rating)
             VALUES ('Minneapolis', 187, 3),
             ('Paris', 61, 5),
             ('Tokyo', 86, 4);
@@ -242,14 +242,11 @@ module.exports = {
     },
 
     createCity: (req,res) => {
-        const {name, countrySelect, rating} = req.body
+        const {name, countryId, rating} = req.body
         sequelize.query(`
-        INSERT INTO cities (name, country, rating)
-        VALUES ('${name}', 1, ${rating});
-        
-        UPDATE cities
-        SET cities.country = countries.country_id
-        WHERE countries.name = ${countrySelect};`)
+        INSERT INTO cities (name, country_id, rating)
+        VALUES ('${name}', ${countryId}, ${rating});
+        `)
         .then(dbRes => res.status(200).send(dbRes[0]))
     },
 
@@ -258,7 +255,7 @@ module.exports = {
         SELECT cities.city_id, cities.name AS city, cities.rating, countries.country_id, countries.name AS country
         FROM countries
         JOIN cities
-        ON cities.country = countries.country_id
+        ON cities.country_id = countries.country_id
         ORDER BY rating DESC;
         `).then(dbRes => res.status(200).send(dbRes[0]))
     },
